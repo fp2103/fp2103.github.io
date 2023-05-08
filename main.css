@@ -1,0 +1,193 @@
+.card {
+    border:2px solid #000000;
+    border-radius: 7px;
+    display: block;
+    position: absolute;
+}
+
+.draggable {
+    cursor: grab;
+}
+
+.freecell {
+    border:2px solid #a1a1a1;
+    border-radius: 7px;
+    z-index: -1;
+}
+
+.base {
+    border:2px solid #a1a1a1;
+    border-radius: 7px;
+    z-index: -1;
+}
+
+.column {
+    border:2px solid #a1a1a1;
+    border-radius: 7px;
+    z-index: -1;
+    margin: auto;
+}
+
+/* game area */
+#game_area {
+    margin-top: 3.5em;
+    margin-bottom: -1100px;
+    height: 1100px;
+    position: relative;
+}
+
+#freecells {
+    display: inline;
+}
+
+#bases {
+    display: inline;
+    float: right;
+}
+
+#columns {
+    display: flex;
+    justify-content: center;
+    padding-top: 30px;
+}
+
+#game_buttons {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+#game_buttons button {
+    font-size: xx-large;
+}
+
+/* MENUs */
+#top_menu {
+    overflow: hidden;
+    background-color: blue;
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 100%;
+    z-index: 1;
+}
+
+#top_menu span {
+    display: inline-block;
+    font-size: 2em;
+    margin: 0.2em;
+}
+
+.accordion {
+    background-color: #eee;
+    color: #444;
+    cursor: pointer;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+    transition: 0.4s;
+    margin-bottom: 6px;
+}
+  
+.active_section, .accordion:hover {
+    background-color: #ccc;
+}
+
+.accordion:after {
+    content: '\002B';
+    color: #777;
+    font-weight: bold;
+    float: right;
+    margin-left: 5px;
+}
+
+.active_section:after {
+    content: "\2212";
+}
+
+.accordionable {
+    background-color: white;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+}
+
+#text_game {
+    height: 24em;
+    width: 59ch;
+    max-width: 59ch;
+    resize: none;
+    overflow-y: hidden;
+    margin-bottom: -31px;
+    background-color: #f5f5f5;
+}
+
+#edit_game {
+    margin-bottom: 7px;
+    font-size: large;
+}
+
+#main_menu {
+    width: 480px;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.on_side {
+    position: absolute;
+    height: 100vh;
+    overflow: auto;
+    z-index: 1;
+}
+
+.on_bottom {
+    position: relative;
+    margin: auto;
+    z-index: 0;
+}
+
+.wrong_field {
+    border-color: red;
+    border-width: medium;
+}
+
+#game_id_section {
+    display: flex;
+    font-size: large;
+    margin: 0.8em;
+}
+
+#game_id_section input {
+    flex: 1;
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+#edit_section {
+    flex: 0 0 auto;
+}
+
+#solve_section {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    margin-bottom: 4vh;
+}
+
+#solve_section textarea {
+    flex: 1;
+    min-height: 300px;
+    margin-bottom: 6px;
+    resize: none;
+}
+
+#solve_section button {
+    font-size: x-large;
+}
+
+
