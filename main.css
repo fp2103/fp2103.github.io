@@ -1,3 +1,8 @@
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
 .card {
     border:2px solid #000000;
     border-radius: 7px;
@@ -72,6 +77,8 @@
     right: 0;
     width: 100%;
     z-index: 1;
+    display: flex;
+    /*justify-content: space-between;*/
 }
 
 #top_menu span {
@@ -80,6 +87,22 @@
     margin: 0.2em;
 }
 
+#game_id_section {
+    flex-grow: 1;
+    max-width: 33ch;
+    display: flex;
+    font-size: large;
+    margin: 0.8em;
+}
+
+#game_id_section input {
+    flex: 1;
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+
+/* side/bottom menu */
 .accordion {
     background-color: #eee;
     color: #444;
@@ -116,30 +139,39 @@
     transition: max-height 0.2s ease-out;
 }
 
+#edit_section {
+    flex: none;
+    /*margin-left: 2.5ch;*/
+    display: flex;
+    flex-direction: column;
+    width: max-content;
+}
+
 #text_game {
     height: 24em;
-    width: 59ch;
-    max-width: 59ch;
+    width: 31ch;
+    max-width: 31ch;
     resize: none;
     overflow-y: hidden;
-    margin-bottom: -31px;
     background-color: #f5f5f5;
+    tab-size: 2;
+    flex: none;
 }
 
 #edit_game {
-    margin-bottom: 7px;
     font-size: large;
+    margin-bottom: 3px;
 }
 
 #main_menu {
-    width: 480px;
-    top: 0;
+    width: 37ch;
     display: flex;
     flex-direction: column;
 }
 
 .on_side {
     position: absolute;
+    top: 0;
     height: 100vh;
     overflow: auto;
     z-index: 1;
@@ -156,22 +188,6 @@
     border-width: medium;
 }
 
-#game_id_section {
-    display: flex;
-    font-size: large;
-    margin: 0.8em;
-}
-
-#game_id_section input {
-    flex: 1;
-    margin-left: 3px;
-    margin-right: 3px;
-}
-
-#edit_section {
-    flex: 0 0 auto;
-}
-
 #solve_section {
     display: flex;
     flex-direction: column;
@@ -181,7 +197,7 @@
 
 #solve_section textarea {
     flex: 1;
-    min-height: 300px;
+    /*min-height: 300px;*/
     margin-bottom: 6px;
     resize: none;
 }

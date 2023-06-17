@@ -10,6 +10,8 @@ function update_text_view () {
         if (fcboard.freecells[i]) {
             let c = fcboard.freecells[i];
             game_str += c.value + c.suit;
+        } else {
+            game_str += "  ";
         }
         game_str += "\t";
     }
@@ -32,7 +34,7 @@ function update_text_view () {
     while (cols_done.length < 8) {
         
         for (let j=0; j<8; j++) {
-            let cstr = "";
+            let cstr = "  ";
             if (!cols_done.includes(j)) {
                 let col = fcboard.columns[j];
                 if (i < col.length) {
@@ -181,16 +183,16 @@ function resize() {
     let ga_margin_top = window.getComputedStyle(game_area).getPropertyValue('margin-top').split('px')[0] * 1;
     let min_side = Math.min(window.innerHeight - ga_margin_top, window.innerWidth);
 
-    if (min_side < 1150) {
-        scale_value = min_side/1150;
+    if (min_side < 1200) {
+        scale_value = min_side/1200;
     } else {
         scale_value = 1;
     }
 
-    let menu_width = 500;
+    let menu_width = 3*document.getElementById("top_menu_span").clientWidth; //around 330px
     let ga_w = (window.innerWidth - menu_width)/scale_value;
     if (ga_w < 1100) {
-        // missing the 500px for the menu on the side, moving menu down
+        // missing the 330px for the menu on the side, moving menu down
         menu_on_side = false;
         ga_w = (window.innerWidth - 16)/scale_value;
     } else {
@@ -217,20 +219,41 @@ function resize() {
         game_area.style.transform = "scale(" + scale_value + ") translate(-" + translateX + "px, -" + translateY + "px)";
         game_area.style.marginBottom = -(game_area.clientHeight * (1-scale_value)) + 'px';
     }
-
+    
     // update menu position
-    let main_menu_left = 16 + left_move + (ga_w*scale_value);
+    let main_menu_left = 25 + left_move + (ga_w*scale_value);
     if (menu_on_side) {
         main_menu.classList.remove("on_bottom");
         main_menu.classList.add("on_side");
         document.getElementsByTagName("body")[0].style.overflow = "hidden";
+
+        document.getElementById("solve_area").style.minHeight = 0;
+        document.getElementById("top_menu_shadow").style.minHeight = "4em";
+
+        // game id section
+        let tms = document.getElementById("top_menu_span")
+        let tms_width = tms.clientWidth + (window.getComputedStyle(tms).getPropertyValue('margin-left').split('px')[0] * 2);
+        document.getElementById("game_id_section").style.marginLeft = main_menu_left-tms_width + "px";
+        document.getElementById("top_menu").style.justifyContent = "";
+
     } else {
         main_menu_left = 0;
         main_menu.classList.remove("on_side");
         main_menu.classList.add("on_bottom");
         document.getElementsByTagName("body")[0].style.overflow = "auto";
+
+        document.getElementById("solve_area").style.minHeight = "300px";
+        document.getElementById("top_menu_shadow").style.minHeight = "1em";
+
+        // game id section
+        document.getElementById("game_id_section").style.marginLeft = 0;
+        document.getElementById("top_menu").style.justifyContent = "space-between";
     }
-    main_menu.style.left = main_menu_left + "px"
+    main_menu.style.left = main_menu_left + "px";
+
+    // edit section margin
+    let edit_section_margin = (document.getElementById("main_menu").clientWidth - document.getElementById("edit_section").clientWidth)/2;
+    document.getElementById("edit_section").style.marginLeft = edit_section_margin + "px";
 
     replace_cards();
 }

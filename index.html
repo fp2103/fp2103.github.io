@@ -15,8 +15,15 @@
     <img id="trefle" src="trefle.png" alt="Club" style="display: none;">
     
     <div id="top_menu">
-        <span>FreeCell</span>
+        <span id="top_menu_span">FreeCell</span>
+
+        <div id="game_id_section">
+            <label for="game_id">Game:</label>
+            <input id="game_id" type="text" size="10">
+            <button onclick="play_new_game()">PLAY</button>
+        </div>
     </div>
+
     <div id="game_area">
 
         <div>
@@ -117,11 +124,8 @@
     </div>
     
     <div id="main_menu">
-        <div id="game_id_section">
-            <label for="game_id">Game:</label>
-            <input id="game_id" type="text" size="10">
-            <button onclick="play_new_game()">PLAY</button>
-        </div>
+        
+        <div id="top_menu_shadow" style="min-height: 3.5em;"></div>
 
         <button class="accordion">Edit Game</button>
         <div id="edit_section" class="accordionable">
@@ -326,6 +330,12 @@
 
 /*
 TODO:
+-> review view on safari / iphone
+
+no sideoverflow on mobile
+editgame -> 4spaces by column (no tab)
+
+
 - animate card placement (on play/import)
 - import buttons  
 */
