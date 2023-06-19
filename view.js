@@ -246,7 +246,7 @@ function resize() {
         document.getElementById("top_menu_shadow").style.minHeight = "1em";
 
         // game id section
-        document.getElementById("game_id_section").style.marginLeft = 0;
+        document.getElementById("game_id_section").style.marginLeft = "20px";
         document.getElementById("top_menu").style.justifyContent = "space-between";
     }
     main_menu.style.left = main_menu_left + "px";
@@ -380,9 +380,13 @@ function drag(e) {
     document.onmousemove = dr;
     document.ontouchmove = dr;
     function dr(event) {
-        event.preventDefault();
         if (!target.moving) {
             return;
+        }
+        if (event.clientX) { // mouse
+            event.preventDefault();
+        } else { // touch
+            document.documentElement.style.overflow = "hidden";
         }
     
         for (let t of target_data.moving_cards) {
@@ -401,10 +405,15 @@ function drag(e) {
     }
 
     function endDrag(event) {
-        event.preventDefault();
         if (!target.moving) {
             return;
         }
+        if (event.clientX) { // mouse
+            event.preventDefault();
+        } else {
+            document.documentElement.style.overflow = "auto";
+        }
+        
 
         target.style.cursor = "";
         target.moving = false;
@@ -449,6 +458,7 @@ function drag(e) {
     target.onmouseup = endDrag;
     target.onmouseleave = endDrag;
     target.ontouchend = endDrag;
+    target.ontouchcancel = endDrag;
 }
 document.onmousedown = drag;
 document.ontouchstart = drag;

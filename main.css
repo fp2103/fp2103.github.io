@@ -1,8 +1,4 @@
-html, body {
-    max-width: 100%;
-    overflow-x: hidden;
-}
-
+/* -- game elements -- */
 .card {
     border:2px solid #000000;
     border-radius: 7px;
