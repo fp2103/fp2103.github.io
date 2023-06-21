@@ -438,7 +438,43 @@ function create_from_string (game_str) {
 
     let lines = game_str.split('\n');
 
-    let first_line_list = lines[0].split('\t');
+    function split_line (line) {
+        let ret = [];
+        let empty_count = 0;
+        for (let c of line.split(' ')) {
+            if (c) {
+                ret.push(c);
+                empty_count = 0;
+            } else {
+                empty_count += 1;
+                if (empty_count > 3) {
+                    ret.push('');
+                    empty_count = 0;
+                }
+            }
+        }
+
+        // remove empty element at the end
+        let a = ret.pop();
+        while (a == '') {
+            a = ret.pop();
+        }
+        if (a != undefined) {
+            ret.push(a);
+        }
+
+        // pad to 8 columns
+        let j = ret.length;
+        if (j > 8) {
+            throw new Error("Line is too big, 8 columns (4 spaces wide) only");
+        }
+        for (let i = j; i < 8; i++) {
+            ret.push('');
+        }
+        return ret;
+    }
+
+    let first_line_list = split_line(lines[0]);
     // freecells
     for (let i = 0; i < 4; i++) {
         let c = read_card(first_line_list[i], 0, i);
@@ -463,7 +499,7 @@ function create_from_string (game_str) {
 
     // lines (2nd line is skipped)
     for (let i = 2; i < lines.length; i++) {
-        let line_list = lines[i].split('\t');
+        let line_list = split_line(lines[i]);
         for (let j = 0; j < line_list.length; j++) {
             let c = read_card(line_list[j], i, j);
             if (c) {

@@ -5,26 +5,34 @@ function update_text_view () {
     let text_area = document.getElementById("text_game");
     let game_str = "";
 
+    function case_padding (case_str) {
+        let ret = case_str;
+        for (let ci = case_str.length; ci < 4; ci++) {
+            ret += " ";
+        }
+        return ret;
+    }
+
     // freecells
     for (let i=0; i<4; i++) {
+        let cstr = "";
         if (fcboard.freecells[i]) {
             let c = fcboard.freecells[i];
-            game_str += c.value + c.suit;
-        } else {
-            game_str += "  ";
+            cstr += c.value + c.suit;
         }
-        game_str += "\t";
+        game_str += case_padding(cstr);
     }
 
     // Bases
     for (let i=0; i<4; i++) {
+        let cstr = "";
         if (fcboard.bases[i].length > 0) {
             let c = fcboard.bases[i][fcboard.bases[i].length - 1];
-            game_str += c.value + c.suit;
+            cstr += c.value + c.suit;
         } else {
-            game_str += "0X"
+            cstr += "0X"
         }
-        if (i != 3) { game_str += "\t"; }
+        game_str += case_padding(cstr);
     }
     game_str += "\n\n";
 
@@ -43,13 +51,7 @@ function update_text_view () {
                     cols_done.push(j);
                 }
             }
-            if (j == 7) {
-                if (cstr.length < 3) { cstr += " " }
-                game_str += cstr;
-            } else {
-                game_str += cstr + "\t";
-            }
-
+            game_str += case_padding(cstr);
         }
         i += 1;
         game_str += "\n";
@@ -314,7 +316,8 @@ async function view_move_cards (cards, dest_id, model_move, fast) {
                 solve_area_value += ">";
             }
             document.getElementById("solve_area").value = solve_area_value;
-            scroll_solve_area((fcboard.moves.length-fcboard.back_count)/fcboard.moves.length);
+            let bc = fcboard.back_count+3;
+            scroll_solve_area((fcboard.moves.length-bc)/fcboard.moves.length);
         }
         update_text_view();
         setTimeout(() => {

@@ -145,8 +145,8 @@
 
 #text_game {
     height: 24em;
-    width: 31ch;
-    max-width: 31ch;
+    width: 32ch;
+    max-width: 32ch;
     resize: none;
     overflow-y: hidden;
     background-color: #f5f5f5;
