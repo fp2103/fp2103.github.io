@@ -72,9 +72,8 @@
     top: 0;
     right: 0;
     width: 100%;
-    z-index: 1;
+    z-index: 2;
     display: flex;
-    /*justify-content: space-between;*/
 }
 
 #top_menu span {
@@ -137,7 +136,6 @@
 
 #edit_section {
     flex: none;
-    /*margin-left: 2.5ch;*/
     display: flex;
     flex-direction: column;
     width: max-content;
@@ -152,6 +150,7 @@
     background-color: #f5f5f5;
     tab-size: 2;
     flex: none;
+    font-family: 'Courier New', Courier, monospace;
 }
 
 #edit_game {
@@ -193,7 +192,6 @@
 
 #solve_section textarea {
     flex: 1;
-    /*min-height: 300px;*/
     margin-bottom: 6px;
     resize: none;
 }
