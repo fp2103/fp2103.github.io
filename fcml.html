@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" const="text/html;charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <title>FreeCell</title>
+</head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<body><div style="overflow-x: hidden; max-width: 100%;">
+    <img id="coeur" src="coeur.png" alt="Heart" style="display: none;">
+    <img id="pic" src="pic.png" alt="Spade" style="display: none;">
+    <img id="carreau" src="carreau.png" alt="Diamond" style="display: none;">
+    <img id="trefle" src="trefle.png" alt="Club" style="display: none;">
+    
+    <div id="top_menu">
+        <span id="top_menu_span">FreeCell</span>
+
+        <div id="game_id_section">
+            <label for="game_id">Game:</label>
+            <input id="game_id" type="text" size="10">
+            <button onclick="play_new_game()">PLAY</button>
+        </div>
+    </div>
+
+    <div id="game_area">
+
+        <div>
+            <div id="freecells">
+                <canvas id="freecell_0" class="freecell" width="110" height="135"></canvas>
+                <canvas id="freecell_1" class="freecell" width="110" height="135"></canvas>
+                <canvas id="freecell_2" class="freecell" width="110" height="135"></canvas>
+                <canvas id="freecell_3" class="freecell" width="110" height="135"></canvas>
+            </div>
+
+            <div id="bases">
+                <canvas id="base_0" class="base" width="110" height="135"></canvas>
+                <canvas id="base_1" class="base" width="110" height="135"></canvas>
+                <canvas id="base_2" class="base" width="110" height="135"></canvas>
+                <canvas id="base_3" class="base" width="110" height="135"></canvas>
+            </div>
+        </div>
+
+        <div id="columns">
+            <canvas id="col_0" class="column" width="110" height="135"></canvas>
+            <canvas id="col_1" class="column" width="110" height="135"></canvas>
+            <canvas id="col_2" class="column" width="110" height="135"></canvas>
+            <canvas id="col_3" class="column" width="110" height="135"></canvas>
+            <canvas id="col_4" class="column" width="110" height="135"></canvas>
+            <canvas id="col_5" class="column" width="110" height="135"></canvas>
+            <canvas id="col_6" class="column" width="110" height="135"></canvas>
+            <canvas id="col_7" class="column" width="110" height="135"></canvas>
+        </div>
+            
+        <canvas id="card_aH" class="card" width="110" height="135"></canvas>
+        <canvas id="card_2H" class="card" width="110" height="135"></canvas>
+        <canvas id="card_3H" class="card" width="110" height="135"></canvas>
+        <canvas id="card_4H" class="card" width="110" height="135"></canvas>
+        <canvas id="card_5H" class="card" width="110" height="135"></canvas>
+        <canvas id="card_6H" class="card" width="110" height="135"></canvas>
+        <canvas id="card_7H" class="card" width="110" height="135"></canvas>
+        <canvas id="card_8H" class="card" width="110" height="135"></canvas>
+        <canvas id="card_9H" class="card" width="110" height="135"></canvas>
+        <canvas id="card_10H" class="card" width="110" height="135"></canvas>
+        <canvas id="card_jH" class="card" width="110" height="135"></canvas>
+        <canvas id="card_qH" class="card" width="110" height="135"></canvas>
+        <canvas id="card_kH" class="card" width="110" height="135"></canvas>
+        
+        <canvas id="card_aS" class="card" width="110" height="135"></canvas>
+        <canvas id="card_2S" class="card" width="110" height="135"></canvas>
+        <canvas id="card_3S" class="card" width="110" height="135"></canvas>
+        <canvas id="card_4S" class="card" width="110" height="135"></canvas>
+        <canvas id="card_5S" class="card" width="110" height="135"></canvas>
+        <canvas id="card_6S" class="card" width="110" height="135"></canvas>
+        <canvas id="card_7S" class="card" width="110" height="135"></canvas>
+        <canvas id="card_8S" class="card" width="110" height="135"></canvas>
+        <canvas id="card_9S" class="card" width="110" height="135"></canvas>
+        <canvas id="card_10S" class="card" width="110" height="135"></canvas>
+        <canvas id="card_jS" class="card" width="110" height="135"></canvas>
+        <canvas id="card_qS" class="card" width="110" height="135"></canvas>
+        <canvas id="card_kS" class="card" width="110" height="135"></canvas>
+        
+        <canvas id="card_aD" class="card" width="110" height="135"></canvas>
+        <canvas id="card_2D" class="card" width="110" height="135"></canvas>   
+        <canvas id="card_3D" class="card" width="110" height="135"></canvas>
+        <canvas id="card_4D" class="card" width="110" height="135"></canvas>
+        <canvas id="card_5D" class="card" width="110" height="135"></canvas>
+        <canvas id="card_6D" class="card" width="110" height="135"></canvas>
+        <canvas id="card_7D" class="card" width="110" height="135"></canvas>
+        <canvas id="card_8D" class="card" width="110" height="135"></canvas>
+        <canvas id="card_9D" class="card" width="110" height="135"></canvas>
+        <canvas id="card_10D" class="card" width="110" height="135"></canvas>
+        <canvas id="card_jD" class="card" width="110" height="135"></canvas>
+        <canvas id="card_qD" class="card" width="110" height="135"></canvas>
+        <canvas id="card_kD" class="card" width="110" height="135"></canvas>
+        
+        <canvas id="card_aC" class="card" width="110" height="135"></canvas>
+        <canvas id="card_2C" class="card" width="110" height="135"></canvas>
+        <canvas id="card_3C" class="card" width="110" height="135"></canvas>
+        <canvas id="card_4C" class="card" width="110" height="135"></canvas>
+        <canvas id="card_5C" class="card" width="110" height="135"></canvas>
+        <canvas id="card_6C" class="card draggable" width="110" height="135"></canvas>
+        <canvas id="card_7C" class="card" width="110" height="135"></canvas>    
+        <canvas id="card_8C" class="card" width="110" height="135"></canvas>
+        <canvas id="card_9C" class="card" width="110" height="135"></canvas>
+        <canvas id="card_10C" class="card" width="110" height="135"></canvas>
+        <canvas id="card_jC" class="card" width="110" height="135"></canvas>
+        <canvas id="card_qC" class="card" width="110" height="135"></canvas>
+        <canvas id="card_kC" class="card" width="110" height="135"></canvas>
+
+
+        <div id="game_buttons">
+            <button onclick="undo()">&#8676;undo</button>
+            <div>
+                <button onclick="play_backward()" style="transform: scale(-1, 1);">&#9654;</button>
+                <button onclick="pause()">&VerticalSeparator;&VerticalSeparator;</button>
+                <button onclick="play_forward()">&#9654;</button>
+                <button onclick="redo()">&#8677;</button>
+            </div>
+            <button onclick="auto_base()">&#8618;base</button>
+        </div>
+    
+    </div>
+    
+    <div id="main_menu">
+        
+        <div id="top_menu_shadow" style="min-height: 3.5em;"></div>
+
+        <button class="accordion">Edit Game</button>
+        <div id="edit_section" class="accordionable">
+            <textarea id="text_game" readonly></textarea>
+            <button id="edit_game" onclick="edit_game()">Edit</button>
+        </div>
+
+        <div id="solve_section">
+            <textarea id="solve_area" readonly>></textarea>
+            <button id="solve_game" onclick="solve()">SOLVE</button>
+        </div>
+    </div>
+
+</div></body>
+
+<dialog id="win_popup">
+    <p>You WIN!</p>
+    <form method="dialog">
+        <button>OK</button>
+    </form>
+</dialog>
+<dialog id="lose_popup">
+    <p>Try to UNDO some moves</p>
+    <form method="dialog">
+        <button>OK</button>
+    </form>
+</dialog>
+
+<dialog id="editing_error">
+    <p id="err_msg"></p>
+    <p>Format: <br/>
+       - 1st line is for Freecells and Bases,<br/>
+       - Each column is 4 spaces</p>
+    <form method="dialog">
+        <button>OK</button>
+    </form>
+</dialog>
+
+<!-- page script -->
+<script>
+    // Menu script
+    let acc = document.getElementsByClassName("accordion");
+
+    for (let i = 0; i < acc.length; i++) {
+        acc[i].addEventListener("click", function() {
+            this.classList.toggle("active_section");
+            let section = this.nextElementSibling;
+            if (section.style.maxHeight) {
+                section.style.maxHeight = null;
+            } else {
+                section.style.maxHeight = section.scrollHeight + "px";
+            } 
+        });
+    }
+</script>
+
+<!-- game scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script>
+<script>
+    var fcboard = null;
+    const DECK = [];
+
+    // Randomize game 
+    const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let gs = "";
+    for (let i = 0; i < 5; i++) {
+        gs += CHARS.charAt(Math.floor(Math.random() * CHARS.length));
+    }
+    document.getElementById("game_id").value = gs;
+
+</script>
+<script src="fc_model.js"></script>
+<script src="fc_solver.js"></script>
+<script src="view.js"></script>
+<script>
+
+    function play_new_game() {
+        let game_seed = document.getElementById("game_id").value;
+        let rng = new Math.seedrandom(game_seed);
+
+        // shuffle deck
+        let cids = [];
+        for (let i = 0; i < 52; i++) {
+            cids.push(i);
+        }
+        let deck_r = [];
+        for (let i = 0; i < 52; i++) {
+            let r = Math.floor(rng() * cids.length);
+            deck_r.push(DECK[cids[r]]);
+            cids.splice(r, 1);
+        }
+
+        fcboard = new FCBoard(deck_r);
+        resize();
+        document.getElementById("solve_area").value = ">";
+    }
+
+    // Initialization
+    window.onload = function () {
+
+        // Coeur
+        let img_h = document.getElementById("coeur");
+        for (let n of CARDS_N) {
+            let card = document.getElementById("card_" + n + "H");
+            let ctx = card.getContext("2d");
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, card.width, card.height);
+            ctx.font = "30px Arial";
+            ctx.fillStyle = "red";
+            ctx.fillText(n.toUpperCase(), 10, 30);
+            ctx.scale(0.65, 0.65);
+            ctx.drawImage(img_h, 105, -5);
+            ctx.scale(1.7, 1.7);
+            ctx.drawImage(img_h, 20, 40);
+            DECK.push(new Card(n, 'H'));
+        }
+
+        // Pic
+        let img_s = document.getElementById("pic");
+        for (let n of CARDS_N) {
+            let card = document.getElementById("card_" + n + "S");
+            let ctx = card.getContext("2d");
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, card.width, card.height);
+            ctx.font = "30px Arial";
+            ctx.fillStyle = "black";
+            ctx.fillText(n.toUpperCase(), 10, 30);
+            ctx.scale(0.60, 0.55);
+            ctx.drawImage(img_s, 123, 3);
+            ctx.scale(1.7, 1.6);
+            ctx.drawImage(img_s, 23, 62);
+            DECK.push(new Card(n, 'S'));
+        }
+
+        // Carreau
+        let img_d = document.getElementById("carreau");
+        for (let n of CARDS_N) {
+            let card = document.getElementById("card_" + n + "D");
+            let ctx = card.getContext("2d");
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, card.width, card.height);
+            ctx.font = "30px Arial";
+            ctx.fillStyle = "red";
+            ctx.fillText(n.toUpperCase(), 10, 30);
+            ctx.scale(0.6, 0.6);
+            ctx.drawImage(img_d, 120, 0);
+            ctx.scale(1.65, 1.65);
+            ctx.drawImage(img_d, 25, 50);
+            DECK.push(new Card(n, 'D'));
+        }
+
+        // Trefle
+        let img_c = document.getElementById("trefle");
+        for (let n of CARDS_N) {
+            let card = document.getElementById("card_" + n + "C");
+            let ctx = card.getContext("2d");
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, card.width, card.height);
+            ctx.font = "30px Arial";
+            ctx.fillStyle = "black";
+            ctx.fillText(n.toUpperCase(), 10, 30);
+            ctx.scale(0.6, 0.6);
+            ctx.drawImage(img_c, 120, -2);
+            ctx.scale(1.7, 1.7);
+            ctx.drawImage(img_c, 23, 46);
+            DECK.push(new Card(n, 'C'));
+        }
+
+        // Freecell
+        for (let i=0; i<4; i++) {
+            let freecell = document.getElementById("freecell_" + i);
+            let ctx = freecell.getContext("2d");
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, freecell.width, freecell.height);
+        }
+
+        // Columns
+        for (let i=0; i<8; i++) {
+            let freecell = document.getElementById("col_" + i);
+            let ctx = freecell.getContext("2d");
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, freecell.width, freecell.height);
+        }
+
+        // Base
+        for (let i=0; i<4; i++) {
+            let base = document.getElementById("base_" + i);
+            let ctx = base.getContext("2d");
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, base.width, base.height);
+            ctx.scale(0.40, 0.40);
+            ctx.drawImage(img_h, 85, 105);
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.scale(0.39, 0.34);
+            ctx.drawImage(img_s, 140, 133);
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.scale(0.39, 0.39);
+            ctx.drawImage(img_c, 87, 160);
+            ctx.drawImage(img_d, 140, 160);
+        }
+
+        // create game
+        play_new_game();
+    }
+
+/*
+TODO:
+- solve
+- animate card placement
+*/
+
+</script>
+
+</html>

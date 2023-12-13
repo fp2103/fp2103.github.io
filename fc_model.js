@@ -10,6 +10,8 @@ class Card {
         this.red = suit == 'H' || suit == 'D';
         this.value_num = CARDS_N.indexOf(value);
         this.id_str = "card_" + value + suit;
+
+        this.uid = (this.value_num << 2) + SUITS.indexOf(suit); 
     }
 
     getHtmlElement () {
@@ -17,7 +19,7 @@ class Card {
     }
 
     equals (other) {
-        return this.id_str == other.id_str;
+        return this.uid == other.uid;
     }
 }
 
@@ -33,6 +35,16 @@ class Move {
         if (!dest_card.includes("card")) {
             this.dest_view_id += "_" + dest_col_id;
         }
+
+        this.weight = 0;
+        this.hash = "";
+    }
+
+    equals (other) {
+        return this.cards.length == other.cards.length &&
+                this.cards.every((c, i) => c.uid == other.cards[i].uid) &&
+                this.dest_card == other.dest_card && this.dest_col_id == other.dest_col_id &&
+                this.orig_card == other.orig_card && this.orig_col_id == other.orig_col_id;
     }
 
     to_string () {
@@ -84,13 +96,13 @@ class FCBoard {
 
         this.max_mvt = 0;
         this.max_mvt_free_col_dest = 0;
-        this._update_mvt_max();
+        this.update_mvt_max();
 
         this.moves = [];
         this.back_count = 0;
     }
 
-    _update_mvt_max () {
+    update_mvt_max () {
         let free_col = 0;
         for (let col of this.columns) {
             if (col.length == 0) free_col += 1;
@@ -319,8 +331,6 @@ class FCBoard {
         } else { // columns
             this.columns[move.dest_col_id].push(...move.cards);
         }
-
-        this._update_mvt_max();
     }
 
     get_movable_cards () {
@@ -356,15 +366,19 @@ class FCBoard {
         return ret;
     }
 
-    get_board_status () {
-        /* 
-          return if win or blocked or not
-        */
+    is_won () {
         let win = true;
         for (let b of this.bases) {
             win = win && (b.length == 13);
         }
-        if (win) {
+        return win;
+    }
+
+    get_board_status () {
+        /* 
+          return if win or blocked or not
+        */
+        if (this.is_won()) {
             return "WIN";
         }
 
@@ -388,6 +402,11 @@ class FCBoard {
         }
 
         return "GAMEOVER";
+    }
+
+    discard_futur_moves () {
+        this.moves.splice(this.moves.length - this.back_count);
+        this.back_count = 0;
     }
 }
 

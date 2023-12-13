@@ -261,6 +261,36 @@ function resize() {
 }
 window.addEventListener('resize', resize, false);
 
+function update_moves_area (additional_msg) {
+    let solve_area_value = "";
+    for (let i = 0; i < fcboard.moves.length; i++) {
+        let b = fcboard.moves.length - i;
+        if (b == fcboard.back_count) {
+            solve_area_value += ">";
+            if (additional_msg) {
+                solve_area_value += additional_msg;
+            }
+        }
+        solve_area_value += fcboard.moves[i].to_string();
+        solve_area_value += "\n";
+    }
+    if (fcboard.back_count == 0) {
+        solve_area_value += ">";
+        if (additional_msg) {
+            solve_area_value += additional_msg;
+        }
+    }
+    document.getElementById("solve_area").value = solve_area_value;
+    
+    // scroll
+    if (additional_msg && fcboard.back_count == 0) {
+        scroll_solve_area(1);
+    } else {
+        let bc = fcboard.back_count+3;
+        scroll_solve_area((fcboard.moves.length-bc)/fcboard.moves.length);
+    }
+}
+
 
 // ----- UI Move functions -----
 
@@ -301,23 +331,10 @@ async function view_move_cards (cards, dest_id, model_move, fast) {
     let move_done = new Promise (function(resolve) {
         if (model_move) {
             fcboard.apply_move(model_move);
+            fcboard.update_mvt_max();
 
             // Update Move list
-            let solve_area_value = "";
-            for (let i = 0; i < fcboard.moves.length; i++) {
-                let b = fcboard.moves.length - i;
-                if (b == fcboard.back_count) {
-                    solve_area_value += ">";
-                }
-                solve_area_value += fcboard.moves[i].to_string();
-                solve_area_value += "\n";
-            }
-            if (fcboard.back_count == 0) {
-                solve_area_value += ">";
-            }
-            document.getElementById("solve_area").value = solve_area_value;
-            let bc = fcboard.back_count+3;
-            scroll_solve_area((fcboard.moves.length-bc)/fcboard.moves.length);
+            update_moves_area();
         }
         update_text_view();
         setTimeout(() => {
@@ -572,3 +589,76 @@ async function pause() {
         auto_playing = false;
     }
 }
+
+// --- Solve function ---
+
+function iter_solve (solver) {
+    return new Promise((ended) => {
+        res = solver.solve();
+        setTimeout(() => {
+            ended(res);
+        }, 10);
+    });
+}
+
+function reduce (solver, solution) {
+    return new Promise((ended) => {
+        nmoves = solver.moves_reducer(solution);
+        ended(nmoves);
+    });
+}
+
+async function solve() {
+    if (auto_playing || global_moving || !fcboard) {
+        return;
+    }
+    global_moving = true;
+
+    fcboard.discard_futur_moves();
+    let solve_msg = "\n\nSolving:\n"
+    update_moves_area(solve_msg);
+
+    let res = {"success": false};
+    let solv = new Solver(fcboard);
+    let solvable = true;
+    while (!res.success && solvable) {
+        solve_msg += "iter " + (solv.called+1).toString() + "...\n";
+        update_moves_area(solve_msg);
+        res = await iter_solve(solv).catch((err) => {
+            console.log(err);
+            solvable = false;
+            return {"success": false};
+        });
+    }
+
+    if (res.success) {
+        solve_msg += "found in " + res.moves.length.toString() + " moves\n";
+        
+        update_moves_area(solve_msg);
+        solution = await reduce(solv, res.moves);
+        solve_msg += "reduce to " + solution.length.toString() + " moves\n\n";
+
+        // update moves list
+        fcboard.moves.push(...solution);
+        fcboard.back_count = solution.length;
+    } else {
+        solve_msg += "no solution found\n";
+    }
+    update_moves_area(solve_msg);
+    
+    global_moving = false;
+}
+
+/*
+difficult:
+2JL02
+
+impossible game:
+aH  aS  4H  aC  2D  6S  10S jS  
+3D  3H  qS  qC  8S  7H  aD  kS  
+kD  6H  5S  4D  9H  jH  9S  3C  
+jC  5D  5C  8C  9D  10D kH  7C  
+6C  2C  10H qH  6D  10C 4S  7S  
+jD  7D  8H  9C  2H  qD  4C  5H  
+kC  8D  2S  3S  
+*/
