@@ -266,7 +266,7 @@ function update_moves_area (additional_msg) {
     for (let i = 0; i < fcboard.moves.length; i++) {
         let b = fcboard.moves.length - i;
         if (b == fcboard.back_count) {
-            solve_area_value += ">";
+            solve_area_value += "> ";
             if (additional_msg) {
                 solve_area_value += additional_msg;
             }
@@ -275,7 +275,7 @@ function update_moves_area (additional_msg) {
         solve_area_value += "\n";
     }
     if (fcboard.back_count == 0) {
-        solve_area_value += ">";
+        solve_area_value += "> ";
         if (additional_msg) {
             solve_area_value += additional_msg;
         }

@@ -67,7 +67,7 @@
 /* MENUs */
 #top_menu {
     overflow: hidden;
-    background-color: blue;
+    background-color: #00a5ff;
     position: fixed;
     top: 0;
     right: 0;
@@ -159,7 +159,7 @@
 }
 
 #main_menu {
-    width: 37ch;
+    width: 38ch;
     display: flex;
     flex-direction: column;
 }
