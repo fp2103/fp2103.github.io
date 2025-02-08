@@ -110,12 +110,14 @@
 
 
         <div id="game_buttons">
+            <div>
             <button onclick="undo()">&#8676;undo</button>
+            <button onclick="redo()">&#8677;</button>
+            </div>
             <div>
                 <button onclick="play_backward()" style="transform: scale(-1, 1);">&#9654;</button>
                 <button onclick="pause()">&VerticalSeparator;&VerticalSeparator;</button>
                 <button onclick="play_forward()">&#9654;</button>
-                <button onclick="redo()">&#8677;</button>
             </div>
             <button onclick="auto_base()">&#8618;base</button>
         </div>
@@ -332,8 +334,15 @@
 
 /*
 TODO:
-- solve
-- animate card placement
+.- move redo button
+- loading animation
+- button random
+.- bug safari still sliding
+- button indice
+- display nb de move
+- animation win: https://mrdoob.com/lab/javascript/effects/solitaire/
+.- bug move column ? (When multiple col empty?)
+- don't erase after solve, if manual same mvt
 */
 
 </script>

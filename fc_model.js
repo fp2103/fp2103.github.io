@@ -111,8 +111,8 @@ class FCBoard {
         for (let fc of this.freecells) {
             if (fc != null) occupied_freecell += 1;
         }
-        this.max_mvt = (5 - occupied_freecell) * (1 + free_col)
-        this.max_mvt_free_col_dest = (5 - occupied_freecell) * free_col
+        this.max_mvt = (5 - occupied_freecell) * (2 ** free_col);
+        this.max_mvt_free_col_dest = this.max_mvt/2;
     }
 
     good_for_base (card) {

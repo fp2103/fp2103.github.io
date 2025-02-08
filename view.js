@@ -294,6 +294,26 @@ function update_moves_area (additional_msg) {
 
 // ----- UI Move functions -----
 
+// Stop scroll on touch screen
+function prevDef(e) {
+    e.preventDefault();
+}
+// modern Chrome requires { passive: false } when adding event
+let supportsPassive = false;
+try {
+  window.addEventListener("test", null, Object.defineProperty({}, 'passive', {
+    get: function () { supportsPassive = true; } 
+  }));
+} catch(e) {}
+let scrollOpt = supportsPassive ? { passive : false } : false;
+
+function disableScroll() {
+    window.addEventListener('touchmove', prevDef, scrollOpt);
+}
+function enableScroll() {
+    window.removeEventListener('touchmove', prevDef, scrollOpt);
+}
+
 let global_moving = false;
 
 async function view_move_cards (cards, dest_id, model_move, fast) {
@@ -373,6 +393,9 @@ function drag(e) {
     target.style.cursor = "grabbing";
     target.moving = true;
 
+    // Disable scroll on touch screen
+    disableScroll();
+
     // gets list of card to move & list of possible destination from fcboard
     target_data = fcboard.get_card_target(target.id);
 
@@ -405,8 +428,6 @@ function drag(e) {
         }
         if (event.clientX) { // mouse
             event.preventDefault();
-        } else { // touch
-            document.documentElement.style.overflow = "hidden";
         }
     
         for (let t of target_data.moving_cards) {
@@ -431,7 +452,7 @@ function drag(e) {
         if (event.clientX) { // mouse
             event.preventDefault();
         } else {
-            document.documentElement.style.overflow = "auto";
+            enableScroll();
         }
         
 
@@ -476,7 +497,7 @@ function drag(e) {
         view_move_cards(target_data.moving_cards, dest, model_move, false);
     }
     target.onmouseup = endDrag;
-    target.onmouseleave = endDrag;
+    target.parentElement.onmouseleave = endDrag;
     target.ontouchend = endDrag;
     target.ontouchcancel = endDrag;
 }
