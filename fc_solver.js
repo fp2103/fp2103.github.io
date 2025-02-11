@@ -28,11 +28,11 @@ function choice_hash (fcboard, choice) {
     }
 
     let orig_col = choice.orig_card;
-    if (orig_col != "freecell" && orig_col != "base") {
+    if (orig_col != "freecell") {
         let col = fcboard.columns[choice.orig_col_id];
         let col_uid = [];
-        for (let c of col) {
-            col_uid.push(c.uid);
+        for (let i = 0; i < col.length-choice.cards.length; i++) { // don't include moving cards twice in hash
+            col_uid.push(col[i].uid);
         }
         orig_col = col_uid.toString();
     }
@@ -436,11 +436,11 @@ class Solver {
                         break;
                     }
                 }
-            j += 1;
+                j += 1;
             }
         
-        this.game.apply(nmoves[i])
-        i += 1;
+            this.game.apply(nmoves[i])
+            i += 1;
         }
 
         return nmoves;
@@ -448,3 +448,13 @@ class Solver {
 
 
 }
+
+/*
+7S  4C  7H  3C  8S  6C  9S  kH  
+8H  10S 2H  jC  7C  10C 4D  kC  
+5H  8D  kS  6D  3D  aC  qD  6S  
+5D  9H  qH  qS  5C  kD  9D  4H  
+3S  jH  7D  9C  jS  2C  aH  6H  
+2D  10D 3H  qC  2S  10H 8C  aS  
+jD  4S  5S  aD  
+*/

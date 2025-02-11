@@ -76,6 +76,7 @@ function edit_game () {
     try {
         fcboard = create_from_string(text_area.value);
         document.getElementById("solve_area").value = ">";
+        document.getElementById("moves_number").innerHTML = "0";
         replace_cards();
         reset_editing_text_area();
     } catch (error) {
@@ -289,6 +290,9 @@ function update_moves_area (additional_msg) {
         let bc = fcboard.back_count+3;
         scroll_solve_area((fcboard.moves.length-bc)/fcboard.moves.length);
     }
+
+    // Moves count
+    document.getElementById("moves_number").innerText = fcboard.moves.length.toString();
 }
 
 
@@ -653,7 +657,7 @@ async function solve() {
     }
 
     if (res.success) {
-        solve_msg += "found in " + res.moves.length.toString() + " moves\n";
+        solve_msg += "found in " + res.moves.length.toString() + " more moves\n";
         
         update_moves_area(solve_msg);
         solution = await reduce(solv, res.moves);

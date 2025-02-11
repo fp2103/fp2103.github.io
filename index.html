@@ -135,6 +135,7 @@
         </div>
 
         <div id="solve_section">
+            <b>Moves : <span id="moves_number">0</span></b>
             <textarea id="solve_area" readonly>></textarea>
             <button id="solve_game" onclick="solve()">SOLVE</button>
         </div>
@@ -222,6 +223,7 @@
         fcboard = new FCBoard(deck_r);
         resize();
         document.getElementById("solve_area").value = ">";
+        document.getElementById("moves_number").innerHTML = "0"
     }
 
     // Initialization
@@ -334,15 +336,15 @@
 
 /*
 TODO:
-.- move redo button
 - loading animation
-- button random
-.- bug safari still sliding
-- button indice
-- display nb de move
+- button random &#8634;	
+- button indice ? (next to base)
+.- display nb de move
 - animation win: https://mrdoob.com/lab/javascript/effects/solitaire/
-.- bug move column ? (When multiple col empty?)
-- don't erase after solve, if manual same mvt
+.- don't erase after solve, if manual same mvt
+- improve move reducer
+.- review choice hash
+
 */
 
 </script>

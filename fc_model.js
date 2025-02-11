@@ -284,9 +284,46 @@ class FCBoard {
 
     new_move (cards, dest) {
         let nm = this._create_move(cards, dest);
-        this.moves.splice(this.moves.length - this.back_count);
-        this.back_count = 0;
-        this.moves.push(nm);
+        if (this.back_count > 0) {
+            let next_known_move = this.moves[this.moves.length - this.back_count];
+            if (nm.equals(next_known_move)) { // exact same move
+                this.back_count -= 1;
+            } else if (nm.cards.length == 1 && next_known_move.cards.length == 1 &&
+                    nm.cards[0].uid == next_known_move.cards[0].uid &&
+                    nm.dest_card == "freecell" && next_known_move.dest_card == "freecell") {
+                // update model to match new view on all next moves!
+                let oldid = next_known_move.dest_col_id;
+                let newid = nm.dest_col_id;
+
+                for (let i = this.moves.length - this.back_count; i < this.moves.length; i++) {
+                    let m = this.moves[i];
+                    if (m.dest_card == "freecell") {
+                        if (m.dest_col_id == oldid) {
+                            m.dest_col_id = newid;
+                            m.dest_view_id = "freecell_" + newid; 
+                        } else if (m.dest_col_id == newid) {
+                            m.dest_col_id = oldid;
+                            m.dest_view_id = "freecell_" + oldid;
+                        }
+                    }
+                    if (m.orig_card == "freecell") {
+                        if (m.orig_col_id == oldid) {
+                            m.orig_col_id = newid;
+                        } else if (m.orig_col_id == newid) {
+                            m.orig_col_id = oldid;
+                        }
+                    }
+                }                
+
+                this.back_count -= 1;
+            } else {
+                this.moves.splice(this.moves.length - this.back_count);
+                this.back_count = 0;
+                this.moves.push(nm);
+            }
+        } else {
+            this.moves.push(nm);
+        }
         return nm;
     }
 
@@ -315,6 +352,9 @@ class FCBoard {
 
         // Remove from origin
         if (move.orig_card == "freecell") {
+            if (!this.freecells[move.orig_col_id]) {
+                throw new Error("Emptying free freecell");
+            }
             this.freecells[move.orig_col_id] = null;
         } else if (move.orig_card == "base") {
             this.bases[move.orig_col_id].pop();
@@ -325,6 +365,9 @@ class FCBoard {
 
         // Move to dest
         if (move.dest_card == "freecell") {
+            if (this.freecells[move.dest_col_id]) {
+                throw new Error("Putting to non empty freecell");
+            }
             this.freecells[move.dest_col_id] = move.cards[0];
         } else if (move.dest_card == "base") {
             this.bases[move.dest_col_id].push(move.cards[0]);
