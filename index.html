@@ -7,7 +7,13 @@
 </head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<body><div style="overflow-x: hidden; max-width: 100%;">
+<body>
+
+<div id="hide_all">
+    <p id="centered_msg">Loading...</p>
+</div>
+
+<div style="overflow-x: hidden; max-width: 100%;">
     <img id="coeur" src="coeur.png" alt="Heart" style="display: none;">
     <img id="pic" src="pic.png" alt="Spade" style="display: none;">
     <img id="carreau" src="carreau.png" alt="Diamond" style="display: none;">
@@ -19,6 +25,7 @@
         <div id="game_id_section">
             <label for="game_id">Game:</label>
             <input id="game_id" type="text" size="10">
+            <button onclick="button_random()" style="margin-right: 3px;">&#8634;</button>
             <button onclick="play_new_game()">PLAY</button>
         </div>
     </div>
@@ -141,7 +148,8 @@
         </div>
     </div>
 
-</div></body>
+</div>
+</body>
 
 <dialog id="win_popup">
     <p>You WIN!</p>
@@ -191,12 +199,15 @@
     const DECK = [];
 
     // Randomize game 
-    const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let gs = "";
-    for (let i = 0; i < 5; i++) {
-        gs += CHARS.charAt(Math.floor(Math.random() * CHARS.length));
+    function random_game() {
+        const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let gs = "";
+        for (let i = 0; i < 5; i++) {
+            gs += CHARS.charAt(Math.floor(Math.random() * CHARS.length));
+        }
+        document.getElementById("game_id").value = gs;
     }
-    document.getElementById("game_id").value = gs;
+    random_game();
 
 </script>
 <script src="fc_model.js"></script>
@@ -224,6 +235,11 @@
         resize();
         document.getElementById("solve_area").value = ">";
         document.getElementById("moves_number").innerHTML = "0"
+    }
+
+    function button_random () {
+        random_game();
+        play_new_game();
     }
 
     // Initialization
@@ -332,19 +348,16 @@
 
         // create game
         play_new_game();
+
+        // Hide Loading
+        document.getElementById("hide_all").style.display = "none";
     }
 
 /*
 TODO:
-- loading animation
-- button random &#8634;	
 - button indice ? (next to base)
-.- display nb de move
 - animation win: https://mrdoob.com/lab/javascript/effects/solitaire/
-.- don't erase after solve, if manual same mvt
 - improve move reducer
-.- review choice hash
-
 */
 
 </script>

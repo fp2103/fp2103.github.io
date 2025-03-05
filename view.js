@@ -677,6 +677,7 @@ async function solve() {
 /*
 difficult:
 2JL02
+AGHDO
 
 impossible game:
 aH  aS  4H  aC  2D  6S  10S jS  
