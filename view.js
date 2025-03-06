@@ -393,6 +393,7 @@ function drag(e) {
     if (global_moving || !target.classList.contains("draggable") || !fcboard) {
         return;
     }
+    reset_clue();
     global_moving = true;
     target.style.cursor = "grabbing";
     target.moving = true;
@@ -512,6 +513,7 @@ function undo() {
     if (global_moving || !fcboard) {
         return;
     }
+    reset_clue();
     
     let m = fcboard.move_backward();
     if (m) {
@@ -524,6 +526,7 @@ function redo() {
     if (global_moving || !fcboard) {
         return;
     }
+    reset_clue();
     
     let m = fcboard.move_forward();
     if (m) {
@@ -536,6 +539,7 @@ async function auto_base() {
     if (global_moving || !fcboard) {
         return;
     }
+    reset_clue();
 
     let cont = true;
     while (cont) {
@@ -579,6 +583,7 @@ async function play_backward() {
     if (auto_playing || global_moving || !fcboard) {
         return;
     }
+    reset_clue();
 
     auto_playing = true;
     while (auto_playing) {
@@ -596,6 +601,7 @@ async function play_forward() {
     if (auto_playing || global_moving || !fcboard) {
         return;
     }
+    reset_clue();
 
     auto_playing = true;
     while (auto_playing) {
@@ -637,6 +643,7 @@ async function solve() {
     if (auto_playing || global_moving || !fcboard) {
         return;
     }
+    reset_clue();
     global_moving = true;
 
     fcboard.discard_futur_moves();
@@ -672,6 +679,47 @@ async function solve() {
     update_moves_area(solve_msg);
     
     global_moving = false;
+}
+
+//----- Clue -----
+var clue_timeout = undefined;
+async function give_clue() {
+    if (auto_playing || global_moving || !fcboard) {
+        return;
+    }
+
+    clearTimeout(clue_timeout);
+    reset_clue();
+    
+    let solv = new Solver(fcboard);
+    let choices = solv.game.list_choices();
+
+    if (choices.length == 0) {
+        return;
+    }
+    
+    solv.sort_choices(choices, false);
+
+    fcboard.clue_iter = fcboard.clue_iter + 1;
+    if (fcboard.clue_iter > choices.length) {
+        fcboard.clue_iter = 1;
+    }
+    let m = choices[choices.length-fcboard.clue_iter];
+    
+    let orig = document.getElementById(m.cards[0].id_str);
+    let dest = document.getElementById(m.dest_view_id);
+
+    orig.classList.add('clue');
+    dest.classList.add('clue');
+
+    clue_timeout = setTimeout(reset_clue, 1200);
+}
+
+function reset_clue() {
+    let elements_with_clue = Array.from(document.getElementsByClassName('clue'));
+    for (let e of elements_with_clue) {
+        e.classList.remove('clue');
+    }
 }
 
 /*

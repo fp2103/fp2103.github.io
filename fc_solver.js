@@ -245,7 +245,7 @@ class Solver {
         this.called = -1;
     }
 
-    sort_choices (choices_list) {
+    sort_choices (choices_list, use_random) {
         // Priorities category:
         // 1) base & reduce base diff
         // 2) sorted inc & mvt_max(= or inc)
@@ -262,7 +262,10 @@ class Solver {
         }
 
         for (let choice of choices_list) {
-            let crand = (2*rfactor*Math.random())-rfactor;
+            let crand = 0;
+            if (use_random) {
+                crand = (2*rfactor*Math.random())-rfactor;
+            }
 
             // From 
             let from_fc = choice.orig_card == "freecell";
@@ -362,7 +365,7 @@ class Solver {
                         }
                     }
                     
-                    this.sort_choices(viable_choices);
+                    this.sort_choices(viable_choices, true);
                     current_state = {"hash": hashst, "choices": viable_choices};
                 }
             }
