@@ -101,7 +101,7 @@ class FCBoard {
         this.moves = [];
         this.back_count = 0;
 
-        this.clue_iter = 0;
+        this.clue_iter = -1;
     }
 
     update_mvt_max () {
@@ -378,7 +378,7 @@ class FCBoard {
         }
 
         // reset clue iteration, to give new one
-        this.clue_iter = 0
+        this.clue_iter = -1;
     }
 
     get_movable_cards () {

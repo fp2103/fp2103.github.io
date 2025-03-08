@@ -133,6 +133,7 @@ function replace_cards () {
         return;
     }
 
+    clear_animation();
     update_text_view();
     update_view();
 
@@ -375,6 +376,7 @@ async function view_move_cards (cards, dest_id, model_move, fast) {
             let state = fcboard.get_board_status();
             if (state == "WIN") {
                 document.getElementById("win_popup").showModal();
+                win_animation();
             } else if (state == "GAMEOVER") {
                 document.getElementById("lose_popup").showModal();
             }
@@ -513,6 +515,7 @@ function undo() {
     if (global_moving || !fcboard) {
         return;
     }
+    clear_animation();
     reset_clue();
     
     let m = fcboard.move_backward();
@@ -583,6 +586,7 @@ async function play_backward() {
     if (auto_playing || global_moving || !fcboard) {
         return;
     }
+    clear_animation();
     reset_clue();
 
     auto_playing = true;
@@ -700,11 +704,24 @@ async function give_clue() {
     
     solv.sort_choices(choices, false);
 
+    // increase clue iterator
     fcboard.clue_iter = fcboard.clue_iter + 1;
     if (fcboard.clue_iter > choices.length) {
         fcboard.clue_iter = 1;
     }
-    let m = choices[choices.length-fcboard.clue_iter];
+
+    let m = undefined;
+    // use next known move if possible
+    if (fcboard.clue_iter == 0) {
+        if (fcboard.back_count > 0) {
+            m = fcboard.moves[fcboard.moves.length-fcboard.back_count];
+        } else {
+            fcboard.clue_iter = 1;
+        }
+    }
+    if (!m) {
+        m = choices[choices.length-fcboard.clue_iter];
+    }
     
     let orig = document.getElementById(m.cards[0].id_str);
     let dest = document.getElementById(m.dest_view_id);
@@ -720,6 +737,136 @@ function reset_clue() {
     for (let e of elements_with_clue) {
         e.classList.remove('clue');
     }
+}
+
+//---- Winning animation ----
+var animationRequestId = undefined;
+var intervalId = undefined;
+async function win_animation() {
+    if (!fcboard) {
+        return;
+    }
+
+    let anim_canvas = document.getElementById("animation");
+    
+    anim_canvas.width = parseInt(document.getElementById('game_area').style.width);
+    anim_canvas.style.zIndex = 90;
+
+    let ctx = anim_canvas.getContext("2d");
+    
+    let card_width = 110;
+    let card_height = 135;
+
+    function drawCard(card, x, y) {
+        // Border
+        let border_radius = 7;
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(x + border_radius, y);
+        ctx.lineTo(x + card_width - border_radius, y);
+        ctx.quadraticCurveTo(x + card_width, y, x + card_width, y + border_radius);
+        ctx.lineTo(x + card_width, y + card_height - border_radius);
+        ctx.quadraticCurveTo(x + card_width, y + card_height, x + card_width - border_radius, y + card_height);
+        ctx.lineTo(x + border_radius, y + card_height);
+        ctx.quadraticCurveTo(x, y + card_height, x, y + card_height - border_radius);
+        ctx.lineTo(x, y + border_radius);
+        ctx.quadraticCurveTo(x, y, x + border_radius, y);
+        ctx.closePath();
+        ctx.stroke();
+
+        // Card
+        ctx.save();
+        ctx.clip();
+        ctx.drawImage(card.getHtmlElement(), x, y);
+        ctx.restore();
+    }
+
+    let particles = [];
+
+    function Particle(card, sx, sy) {
+
+        if (sx === 0) {
+            sx = 2;
+        }
+
+        let starting_pos = getGameAreaOffsetPosition(card.getHtmlElement());
+        let x = starting_pos.left+1;
+        let y = starting_pos.top+1;
+
+        this.update = function() {
+            x += sx;
+            y += sy;
+
+            if (x < (-card_width) || x > anim_canvas.width) { // outside laterally, stop particle
+                let index = particles.indexOf(this);
+                particles.splice(index, 1);
+                return false;
+            }
+
+            if (y > anim_canvas.height - (card_height+1)) { // outside down, bounce
+                y = anim_canvas.height - (card_height+1);
+                sy = -sy * 0.85;
+            }
+
+            sy += 0.98;
+
+            drawCard(card, Math.floor(x), Math.floor(y));
+            return true;
+        }
+    }
+
+    // Create Particles
+    let cid = 0;
+    function add_particle() {
+        if (cid >= 52) {
+            return;
+        }
+
+        let b = cid % 4;
+        let c = Math.floor(cid/4) + 1;
+        cid += 1;
+
+        let card = fcboard.bases[b][13-c];
+        if (card) {
+            let p = new Particle(card, Math.floor(Math.random() * 6 - 3) * 2, -Math.random() * 16);
+            particles.push(p);
+        }
+    }
+    add_particle();
+    intervalId = setInterval(add_particle, 1000);
+    
+    // Start animation loop
+    function animate() {
+        let i = 0;
+        let l = particles.length;
+        while (i < l) {
+            particles[i].update() ? i++ : l--;
+        }
+
+        animationRequestId = requestAnimationFrame(animate);
+    }
+    animationRequestId = requestAnimationFrame(animate);
+
+}
+
+function clear_animation() {
+    // stop animation
+    if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = undefined;
+    }
+    if (animationRequestId) {
+        cancelAnimationFrame(animationRequestId);
+        animationRequestId = undefined;
+    }
+
+    // clear canvas
+    let anim_canvas = document.getElementById("animation");
+    let ctx = anim_canvas.getContext("2d");
+    ctx.clearRect(0, 0, 1500, 1050);
+
+    anim_canvas.style.zIndex = -10;
 }
 
 /*

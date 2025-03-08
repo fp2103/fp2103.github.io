@@ -229,3 +229,9 @@
 .clue {
     box-shadow: 0px 0px 20px #00a5ff;
 }
+
+/* animation */
+#animation {
+    position: absolute;
+    z-index: -10;
+}
