@@ -18,7 +18,10 @@
     <img id="pic" src="pic.png" alt="Spade" style="display: none;">
     <img id="carreau" src="carreau.png" alt="Diamond" style="display: none;">
     <img id="trefle" src="trefle.png" alt="Club" style="display: none;">
-    
+
+    <canvas id="animation"></canvas>
+
+    <div id="top_menu_background"></div>
     <div id="top_menu">
         <span id="top_menu_span">FreeCell</span>
 
@@ -31,7 +34,6 @@
     </div>
 
     <div id="game_area">
-        <canvas width="1500" height="1050" id="animation"></canvas>
 
         <div>
             <div id="freecells">
@@ -359,7 +361,6 @@
 
 /*
 TODO:
-- animation win: https://mrdoob.com/lab/javascript/effects/solitaire/
 - improve move reducer
 */
 

@@ -187,11 +187,16 @@ function resize() {
     let ga_margin_top = window.getComputedStyle(game_area).getPropertyValue('margin-top').split('px')[0] * 1;
     let min_side = Math.min(window.innerHeight - ga_margin_top, window.innerWidth);
 
+    let anim_canvas = document.getElementById("animation");
+
     if (min_side < 1200) {
         scale_value = min_side/1200;
     } else {
         scale_value = 1;
     }
+
+    anim_canvas.width = (window.innerWidth-16)/scale_value;
+    anim_canvas.height = 1050 + (ga_margin_top/scale_value);
 
     let menu_width = 3*document.getElementById("top_menu_span").clientWidth; //around 330px
     let ga_w = (window.innerWidth - menu_width)/scale_value;
@@ -214,14 +219,19 @@ function resize() {
     }
     game_area.style.left = left_move + "px";
     game_area.style.width = ga_w + 'px';
-    
+
     game_area.style.transform = ""; // reset transform
     game_area.style.marginBottom = "";
+    anim_canvas.style.transform = "";
     if (scale_value < 1) {
         let translateY = (game_area.clientHeight * (1-scale_value))/(2*scale_value);
         let translateX = (game_area.clientWidth * (1-scale_value))/(2*scale_value);
         game_area.style.transform = "scale(" + scale_value + ") translate(-" + translateX + "px, -" + translateY + "px)";
         game_area.style.marginBottom = -(game_area.clientHeight * (1-scale_value)) + 'px';
+
+        translateY = (anim_canvas.clientHeight * (1-scale_value))/(2*scale_value);
+        translateX = (anim_canvas.clientWidth * (1-scale_value))/(2*scale_value);
+        anim_canvas.style.transform = "scale(" + scale_value + ") translate(-" + translateX + "px, -" + translateY + "px)";
     }
     
     // update menu position
@@ -687,7 +697,7 @@ async function solve() {
 
 //----- Clue -----
 var clue_timeout = undefined;
-async function give_clue() {
+function give_clue() {
     if (auto_playing || global_moving || !fcboard) {
         return;
     }
@@ -702,7 +712,7 @@ async function give_clue() {
         return;
     }
     
-    solv.sort_choices(choices, false);
+    solv.sort_choices(choices, false, 0);
 
     // increase clue iterator
     fcboard.clue_iter = fcboard.clue_iter + 1;
@@ -739,18 +749,19 @@ function reset_clue() {
     }
 }
 
-//---- Winning animation ----
+//---- Winning animation ---- (https://mrdoob.com/lab/javascript/effects/solitaire/)
 var animationRequestId = undefined;
 var intervalId = undefined;
-async function win_animation() {
+function win_animation() {
     if (!fcboard) {
         return;
     }
 
     let anim_canvas = document.getElementById("animation");
     
-    anim_canvas.width = parseInt(document.getElementById('game_area').style.width);
     anim_canvas.style.zIndex = 90;
+    let offset_top = document.getElementById('game_area').offsetTop/scale_value;
+    let offset_left = (document.getElementById('game_area').offsetLeft-8)/scale_value;
 
     let ctx = anim_canvas.getContext("2d");
     
@@ -791,8 +802,8 @@ async function win_animation() {
         }
 
         let starting_pos = getGameAreaOffsetPosition(card.getHtmlElement());
-        let x = starting_pos.left+1;
-        let y = starting_pos.top+1;
+        let x = starting_pos.left+1 + offset_left;
+        let y = starting_pos.top+1 + offset_top;
 
         this.update = function() {
             x += sx;
@@ -864,22 +875,16 @@ function clear_animation() {
     // clear canvas
     let anim_canvas = document.getElementById("animation");
     let ctx = anim_canvas.getContext("2d");
-    ctx.clearRect(0, 0, 1500, 1050);
+    ctx.clearRect(0, 0, anim_canvas.width, anim_canvas.height);
 
     anim_canvas.style.zIndex = -10;
 }
 
-/*
-difficult:
-2JL02
-AGHDO
 
-impossible game:
-aH  aS  4H  aC  2D  6S  10S jS  
-3D  3H  qS  qC  8S  7H  aD  kS  
-kD  6H  5S  4D  9H  jH  9S  3C  
-jC  5D  5C  8C  9D  10D kH  7C  
-6C  2C  10H qH  6D  10C 4S  7S  
-jD  7D  8H  9C  2H  qD  4C  5H  
-kC  8D  2S  3S  
+/*
+
+                qH  kS  kD  kC  
+
+kH                              
+                                
 */

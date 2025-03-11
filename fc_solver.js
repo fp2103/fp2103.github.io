@@ -1,12 +1,14 @@
 // --- MODEL for Solver ---
 
 function fcboard_hash (fcboard) {
-    let fc_bits = 0;
-    for (let c of fcboard.freecells) {
+    let fc_bits = [0,0,0,0];
+    for (let i = 0; i < 4; i++) {
+        let c = fcboard.freecells[i];
         if (c) {
-            fc_bits += 1 << c.uid;
+            fc_bits[i] = c.uid;
         }
     }
+    fc_bits.sort();
 
     let cols = [];
     for (let i = 0; i < 8; i++) {
@@ -22,10 +24,11 @@ function fcboard_hash (fcboard) {
 }
 
 function choice_hash (fcboard, choice) {
-    let cards_bit = 0;
+    let cards_bit = [];
     for (let c of choice.cards) {
-        cards_bit += 1 << c.uid;
+        cards_bit.push(c.uid);
     }
+    cards_bit.sort();
 
     let orig_col = choice.orig_card;
     if (orig_col != "freecell") {
@@ -235,7 +238,7 @@ class FCSolverGame {
 
 }
 
-const MAX_ITER = 5000;
+const MAX_ITER = 10000;
 
 class Solver {
     constructor (fcboard) {
@@ -243,28 +246,61 @@ class Solver {
 
         this.noexit = new Set();
         this.called = -1;
+        this.all_state_seen = new Map();
     }
 
-    sort_choices (choices_list, use_random) {
-        // Priorities category:
-        // 1) base & reduce base diff
-        // 2) sorted inc & mvt_max(= or inc)
-        // 3) other
-        // 4) sorted = & mvt_max dec
+    sort_choices (choices_list, use_random, state_seen_count) {
+        // Priorities category: weight between -10/10:
+        //   base safe -> 100  [cardvalue <= min(bases)+2 !]
+        //   base unsafe -> 8/10
+        //   1) sorted inc & mvt_max(= or inc) -> 3/10
+        //   2) other                          -> -5/5
+        //   3) sorted = & mvt_max dec         -> -10/-3
+        //   badmove   -> -10
+        // bonus: freeforbase +1
 
-        const CAT1 = 10000;
-        const CAT2 = 5;
-        const CAT3 = 1;
-        const CAT4 = 0;
-        let rfactor = 0.4;
-        if (this.called > 0) {
-            rfactor = this.called;
+        const CAT_basesafe = 100;
+        const CAT_baseunsafe = [8,10];
+        const CAT1 = [3,10];
+        const CAT2 = [-5,5];
+        const CAT3 = [-10,-3];
+        const CAT_badmove = -10;
+        const BONUS_freeforbase = 1;
+
+        // if state was already seen, increase randomness
+        let iter_adjust = state_seen_count > 5 ? 5 : state_seen_count; 
+        
+        function gen_weight(min, max) {
+            if (use_random) {
+                return (Math.random() * (max - min)) + min;
+            } else {
+                return (max - min) / 2;
+            }
+        }
+
+        let b_min = 13;
+        for (let b of this.game.fcboard.bases) {
+            if (b.length < b_min) {
+                b_min = b.length;
+            }
         }
 
         for (let choice of choices_list) {
-            let crand = 0;
-            if (use_random) {
-                crand = (2*rfactor*Math.random())-rfactor;
+
+            // To Base
+            if (choice.dest_card == "base") {
+                if (choice.cards[0].value_num <= b_min+2) { // Safe
+                    choice.weight = CAT_basesafe;
+                } else { // Unsafe
+                    choice.weight = gen_weight(CAT_baseunsafe[0], CAT_baseunsafe[1]);
+                }
+                continue;
+            }
+
+            // Bad move
+            if (choice.bad) {
+                choice.weight = CAT_badmove + iter_adjust;
+                continue;
             }
 
             // From 
@@ -272,47 +308,44 @@ class Solver {
             let empty_col = !from_fc && (this.game.fcboard.columns[choice.orig_col_id].length == choice.cards.length);
             let split_serie = !from_fc && (this.game._column_series[choice.orig_col_id].length > choice.cards.length);
 
-            // To
-            if (choice.dest_card == "base") {
-                let bases_len = [];
-                let i = 0;
-                for (let b = 0; b < 4; b++) {
-                    let base = this.game.fcboard.bases[b];
-                    bases_len.push(base.length);
-                    if (base.length > 0 && base[0].suit == choice.cards[0].suit) {
-                        i = b;
-                    }
-                }
-                let diff_bases = Math.max(...bases_len) - Math.min(...bases_len);
-
-                bases_len[i] += 1;
-                let new_diff_bases = Math.max(...bases_len) - Math.min(...bases_len);
-
-                if (new_diff_bases < diff_bases) {
-                    choice.weight = CAT1 + crand;
+            // To (freecell or column)
+            if (choice.dest_card == "freecell") {
+                if (empty_col || split_serie) {  // sorted =
+                    choice.weight = gen_weight(CAT3[0], CAT3[1]);
                 } else {
-                    choice.weight = CAT2 + crand;
-                }
-            } else if (choice.dest_card == "freecell") {
-                if (empty_col || split_serie) {
-                    choice.weight = CAT4 + crand;
-                } else {
-                    choice.weight = CAT3 + crand;
+                    choice.weight = gen_weight(CAT2[0] - iter_adjust, CAT2[1] + iter_adjust);
                 }
             } else if (this.game.fcboard.columns[choice.dest_col_id].length == 0) { // to empty col
-                if (from_fc || split_serie) {
-                    choice.weight = CAT4 + crand;
+                if (from_fc || split_serie) {  // sorted =
+                    choice.weight = gen_weight(CAT3[0], CAT3[1]);
                 } else {
-                    choice.weight = CAT3 + crand;
+                    choice.weight = gen_weight(CAT2[0] - iter_adjust, CAT2[1] + iter_adjust);
                 }
             } else { // to not empty col
                 if (split_serie) { // sorted =
-                    choice.weight = CAT3 + crand;
+                    choice.weight = gen_weight(CAT2[0] - iter_adjust, CAT2[1] + iter_adjust);
                 } else { // sorted inc or max_mvt inc
-                    choice.weight = CAT2 + crand;
+                    choice.weight = gen_weight(CAT1[0] , CAT1[1]);
                 }
             }
-        
+
+            // Bonus: freetobase
+            if (!from_fc && !empty_col) {
+                let next_card_id = this.game.fcboard.columns[choice.orig_col_id].length - (choice.cards.length+1);
+                let next_card = this.game.fcboard.columns[choice.orig_col_id][next_card_id];
+
+                for (let b of this.game.fcboard.bases) {
+                    if (b.length > 0) {
+                        let last_b = b[b.length-1];
+                        if (last_b.suit == next_card.suit) {
+                            if (next_card.value_num == last_b.value_num + 1) { // good for base
+                                choice.weight += BONUS_freeforbase;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         choices_list.sort((a, b) => a.weight - b.weight);
@@ -336,8 +369,6 @@ class Solver {
         
         let giter = 0;
         while (giter < MAX_ITER) {
-            giter += 1;        
-
             // new state
             let seen = false;
             if (current_state == undefined) {
@@ -350,8 +381,14 @@ class Solver {
                 if (state_seen.has(hashst) || this.noexit.has(hashst)) { // go back when state has already been seen 
                     current_state = {"hash": hashst, "choices": []};
                     seen = true;
-                } else {
-                    state_seen.add(hashst)
+                } else { // unknown state
+                    giter += 1; // only count new state
+                    state_seen.add(hashst);
+                    let state_count = 0;
+                    if (this.all_state_seen.has(hashst)) {
+                        state_count = this.all_state_seen.get(hashst) + 1;
+                    }
+                    this.all_state_seen.set(hashst, state_count);
 
                     let all_choices = this.game.list_choices();
                     let viable_choices = [];
@@ -359,13 +396,20 @@ class Solver {
                         let chash = choice_hash(this.game.fcboard, c);
                         c.hash = chash;
                         if (moves_done.has(chash)) {
-                            continue;
-                        } else {
-                            viable_choices.push(c);
+                            // reinclude 2 bad moves: othewise # 94717719 not solvable
+                            //    nonemptycol -> fc
+                            //    fc -> emptycol
+                            if ((c.orig_card != "col" && c.dest_card == "freecell") || 
+                                (c.orig_card == "freecell" && c.dest_card == "col")) {
+                                c.bad = true;
+                            } else {
+                                continue;
+                            }
                         }
+                        viable_choices.push(c); 
                     }
                     
-                    this.sort_choices(viable_choices, true);
+                    this.sort_choices(viable_choices, true, this.all_state_seen.get(hashst));
                     current_state = {"hash": hashst, "choices": viable_choices};
                 }
             }
@@ -380,6 +424,7 @@ class Solver {
                 current_state = undefined;
             } else { // go back
                 let choice = moves.pop();
+                if (choice == undefined) throw new Error("no solution found!");
                 this.game.apply(get_reverse_move(choice));
                 moves_done.delete(choice.hash);
                 if (!seen) { // go back cause no more choice
@@ -453,11 +498,78 @@ class Solver {
 }
 
 /*
-7S  4C  7H  3C  8S  6C  9S  kH  
-8H  10S 2H  jC  7C  10C 4D  kC  
-5H  8D  kS  6D  3D  aC  qD  6S  
-5D  9H  qH  qS  5C  kD  9D  4H  
-3S  jH  7D  9C  jS  2C  aH  6H  
-2D  10D 3H  qC  2S  10H 8C  aS  
-jD  4S  5S  aD  
+
+#94717719: solvable but fail!
+7D  aH  aS  10D 6C  10C jH  aC  
+2S  4H  2C  3C  10H 5H  9C  7H  
+9H  kH  3H  aD  9D  8S  jD  7C  
+5C  4D  8C  6D  qS  5D  kS  7S  
+9S  8D  jC  6H  4S  3S  qH  2D  
+10S qD  8H  qC  2H  6S  jS  kC  
+3D  kD  4C  5S 
+https://macroxue.github.io/freecell/game/freecell.html?deal=94717719
+
+
+#57148 very difficult
+jS  5C  aD  8H  3H  kD  7S  aC  
+8C  7H  6D  aH  qS  10D kH  9D  
+aS  10H 10S 8D  6C  jC  3D  3S  
+8S  5S  10C 2D  3C  5D  kS  5H  
+4S  qC  qH  2C  6S  9C  7C  9H  
+jD  6H  4D  kC  4H  2H  9S  4C  
+qD  2S  jH  7D
+
+#11982 impossible game:
+aH  aS  4H  aC  2D  6S  10S jS  
+3D  3H  qS  qC  8S  7H  aD  kS  
+kD  6H  5S  4D  9H  jH  9S  3C  
+jC  5D  5C  8C  9D  10D kH  7C  
+6C  2C  10H qH  6D  10C 4S  7S  
+jD  7D  8H  9C  2H  qD  4C  5H  
+kC  8D  2S  3S  
+
+difficult:
+2JL02
+AGHDO
+PN9RW
+
+jC      5C  2H  5S  0X  0X  0X  
+
+9S  aH  kS  10D     6S  3D  aC  
+8H  4H      3C      5D      7H  
+    kH      aD              7C  
+    4D      6D              7S  
+    8D      6H              2D  
+    qD      qC              kC  
+    kD      jH              qH  
+    qS      10C             jS  
+    jD      9H              10H 
+    10S     8C              9C  
+    9D                          
+    8S                          
+    7D                          
+    6C                          
+    5H                          
+    4C                          
+    3H                          
+    2C   
+
+# 98714 (need base unsafe)
+8D  8S  6H  5H  3H  4D  3C  10C 
+aH  6S  6D  5S  qH  10H jH  6C  
+10S 8C  aS  4H  qD  4C  8H  kD  
+2C  5D  9D  aC  3S  qS  7H  7C  
+10D 2S  3D  7D  kH  jS  2H  qC  
+kC  9H  9C  jD  2D  5C  aD  jC  
+kS  4S  9S  7S
+
+# 739671
+8C  8H  qC  qS  4C  4H  10H qD  
+jD  4D  aH  8S  6C  4S  7C  3H  
+10S 10C 9D  6H  7S  2S  3S  qH  
+6S  8D  5S  jH  6D  kD  2D  9C  
+9S  9H  5D  3C  kC  10D aC  5H  
+2C  aS  3D  aD  jC  kH  7D  5C  
+7H  jS  2H  kS 
+
 */

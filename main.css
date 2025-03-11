@@ -71,13 +71,23 @@
 /* MENUs */
 #top_menu {
     overflow: hidden;
-    background-color: #00a5ff;
     position: fixed;
     top: 0;
     right: 0;
     width: 100%;
-    z-index: 2;
+    z-index: 100;
     display: flex;
+}
+
+#top_menu_background {
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 100%;
+    background-color: #00a5ff;
+    height: 3.2em;
+    z-index: 2;
 }
 
 #top_menu span {
@@ -233,5 +243,6 @@
 /* animation */
 #animation {
     position: absolute;
+    top: 0;
     z-index: -10;
 }

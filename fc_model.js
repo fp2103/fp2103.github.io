@@ -11,7 +11,7 @@ class Card {
         this.value_num = CARDS_N.indexOf(value);
         this.id_str = "card_" + value + suit;
 
-        this.uid = (this.value_num << 2) + SUITS.indexOf(suit); 
+        this.uid = (this.value_num << 2) + SUITS.indexOf(suit) + 1; 
     }
 
     getHtmlElement () {
@@ -38,6 +38,7 @@ class Move {
 
         this.weight = 0;
         this.hash = "";
+        this.bad = false;
     }
 
     equals (other) {
