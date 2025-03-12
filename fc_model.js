@@ -591,3 +591,61 @@ function create_from_string (game_str) {
 
     return nfboard;
 }
+
+
+//  Microsoft Random https://rosettacode.org/wiki/Deal_cards_for_FreeCell
+class MicrosoftRand {
+    constructor (seed) {
+        this.seed = seed;
+    }
+
+    rand () {
+        this.seed = (this.seed * 214013 + 2531011) & 0x7FFFFFFF;
+        return (this.seed >> 16) & 0x7fff;
+    }
+
+    max_rand (mymax) {
+        return this.rand() % mymax;
+    }
+
+    shuffle (deck) {
+        if (deck.length) {
+            let i = deck.length;
+            while (--i) {
+                let j = this.max_rand(i+1);
+                let tmp = deck[i];
+                deck[i] = deck[j];
+                deck[j] = tmp;
+            }
+        }
+        return deck;
+    }
+}
+
+function microsoft_deal (seed) {
+    // (ms) Ac, Ad, Ah, As, ... <-> (mine) h, s, d, c
+    let cids = new Array(52);
+
+    for (let i = 0; i < 13; i++) { // hearts
+        cids[(4*i)+2] = i; 
+    }
+    for (let i = 0; i < 13; i++) { // spade
+        cids[(4*i)+3] = i+13; 
+    }
+    for (let i = 0; i < 13; i++) { // diamond
+        cids[(4*i)+1] = i+(13*2); 
+    }
+    for (let i = 0; i < 13; i++) { // club
+        cids[(4*i)] = i+(13*3); 
+    }
+
+    let rnd = new MicrosoftRand(seed);
+    rnd.shuffle(cids);
+    cids = cids.reverse();
+
+    let deck_r = [];
+    for (let i = 0; i < 52; i++) {
+        deck_r.push(DECK[cids[i]]);
+    }
+    return deck_r;
+}

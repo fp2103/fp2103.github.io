@@ -274,7 +274,7 @@ class Solver {
             if (use_random) {
                 return (Math.random() * (max - min)) + min;
             } else {
-                return (max - min) / 2;
+                return (max + min) / 2;
             }
         }
 
@@ -334,14 +334,18 @@ class Solver {
                 let next_card_id = this.game.fcboard.columns[choice.orig_col_id].length - (choice.cards.length+1);
                 let next_card = this.game.fcboard.columns[choice.orig_col_id][next_card_id];
 
-                for (let b of this.game.fcboard.bases) {
-                    if (b.length > 0) {
-                        let last_b = b[b.length-1];
-                        if (last_b.suit == next_card.suit) {
-                            if (next_card.value_num == last_b.value_num + 1) { // good for base
-                                choice.weight += BONUS_freeforbase;
+                if (next_card.value_num == 0) {
+                    choice.weight += BONUS_freeforbase;
+                } else {
+                    for (let b of this.game.fcboard.bases) {
+                        if (b.length > 0) {
+                            let last_b = b[b.length-1];
+                            if (last_b.suit == next_card.suit) {
+                                if (next_card.value_num == last_b.value_num + 1) { // good for base
+                                    choice.weight += BONUS_freeforbase;
+                                }
+                                break;
                             }
-                            break;
                         }
                     }
                 }
@@ -498,35 +502,9 @@ class Solver {
 }
 
 /*
-
-#94717719: solvable but fail!
-7D  aH  aS  10D 6C  10C jH  aC  
-2S  4H  2C  3C  10H 5H  9C  7H  
-9H  kH  3H  aD  9D  8S  jD  7C  
-5C  4D  8C  6D  qS  5D  kS  7S  
-9S  8D  jC  6H  4S  3S  qH  2D  
-10S qD  8H  qC  2H  6S  jS  kC  
-3D  kD  4C  5S 
-https://macroxue.github.io/freecell/game/freecell.html?deal=94717719
-
-
-#57148 very difficult
-jS  5C  aD  8H  3H  kD  7S  aC  
-8C  7H  6D  aH  qS  10D kH  9D  
-aS  10H 10S 8D  6C  jC  3D  3S  
-8S  5S  10C 2D  3C  5D  kS  5H  
-4S  qC  qH  2C  6S  9C  7C  9H  
-jD  6H  4D  kC  4H  2H  9S  4C  
-qD  2S  jH  7D
-
-#11982 impossible game:
-aH  aS  4H  aC  2D  6S  10S jS  
-3D  3H  qS  qC  8S  7H  aD  kS  
-kD  6H  5S  4D  9H  jH  9S  3C  
-jC  5D  5C  8C  9D  10D kH  7C  
-6C  2C  10H qH  6D  10C 4S  7S  
-jD  7D  8H  9C  2H  qD  4C  5H  
-kC  8D  2S  3S  
+# 94717719: solvable 
+# 57148 very difficult
+# 11982 impossible game:
 
 difficult:
 2JL02
@@ -555,21 +533,6 @@ jC      5C  2H  5S  0X  0X  0X
     2C   
 
 # 98714 (need base unsafe)
-8D  8S  6H  5H  3H  4D  3C  10C 
-aH  6S  6D  5S  qH  10H jH  6C  
-10S 8C  aS  4H  qD  4C  8H  kD  
-2C  5D  9D  aC  3S  qS  7H  7C  
-10D 2S  3D  7D  kH  jS  2H  qC  
-kC  9H  9C  jD  2D  5C  aD  jC  
-kS  4S  9S  7S
-
 # 739671
-8C  8H  qC  qS  4C  4H  10H qD  
-jD  4D  aH  8S  6C  4S  7C  3H  
-10S 10C 9D  6H  7S  2S  3S  qH  
-6S  8D  5S  jH  6D  kD  2D  9C  
-9S  9H  5D  3C  kC  10D aC  5H  
-2C  aS  3D  aD  jC  kH  7D  5C  
-7H  jS  2H  kS 
 
 */

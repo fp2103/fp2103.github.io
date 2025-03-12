@@ -223,18 +223,25 @@
 
     function play_new_game() {
         let game_seed = document.getElementById("game_id").value;
-        let rng = new Math.seedrandom(game_seed);
 
-        // shuffle deck
-        let cids = [];
-        for (let i = 0; i < 52; i++) {
-            cids.push(i);
-        }
-        let deck_r = [];
-        for (let i = 0; i < 52; i++) {
-            let r = Math.floor(rng() * cids.length);
-            deck_r.push(DECK[cids[r]]);
-            cids.splice(r, 1);
+        let deck_r = DECK.slice();
+
+        if (isNaN(game_seed)) { // not a number, use random seed
+            let rng = new Math.seedrandom(game_seed);
+
+            // shuffle deck
+            let cids = [];
+            for (let i = 0; i < 52; i++) {
+                cids.push(i);
+            }
+            deck_r = [];
+            for (let i = 0; i < 52; i++) {
+                let r = Math.floor(rng() * cids.length);
+                deck_r.push(DECK[cids[r]]);
+                cids.splice(r, 1);
+            }
+        } else { // number use MS Deal
+            deck_r = microsoft_deal(parseInt(game_seed));
         }
 
         fcboard = new FCBoard(deck_r);
